@@ -30,17 +30,17 @@ jobs:
         # Ensure the output file is created in a known path (here: dist/my-app)
 
       # create a release
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: Automated release with attested artifact.
-          draft: false
-          prerelease: false
+#      - name: Create Release
+#        id: create_release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          tag_name: ${{ github.ref }}
+#          release_name: Release ${{ github.ref }}
+#          body: Automated release with attested artifact.
+#          draft: false
+#          prerelease: false
 
       # Generate attestation for the output file
       - name: Generate artifact attestation
