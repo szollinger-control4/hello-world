@@ -1,55 +1,44 @@
-# This is a basic workflow that is manually triggered
-# now on push
+name: Build and Attest Artifact
 
-name: Manual workflow
-
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
-on: 
+on:
   push:
-  workflow_dispatch:
-    # Inputs the workflow accepts.
-    inputs:
-      name:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
-        # Default value if no value is explicitly provided
-        default: 'World'
-        # Input has to be provided for the workflow to run
-        required: true
-        # The data type of the input
-        type: string
-
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
-  id-token: write    # For Sigstore signing via OIDC
-  contents: read     # To access repository contents
-  attestations: write # To upload the attestation to GitHub
+  id-token: write        # Required for Sigstore signing
+  contents: read         # To access repository contents
+  attestations: write    # To upload attestations
 
-
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
-  greet:
-    # The type of runner that the job will run on
+  build-and-attest:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ inputs.name }}"
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      # Example: Build an output file (replace with your build command)
+      - name: Build the artifact
+        run: |
+          # Example: Compile a C program or similar
+          echo "Building a sample binary..."
+          gcc -o my-app main.c  # Replace with your build command (e.g., mvn package, npm run build)
+          mkdir -p dist
+          mv my-app dist/my-app
+        # Ensure the output file is created in a known path (here: dist/my-app)
 
-- name: Generate artifact attestation
-  uses: actions/attest-build-provenance@v2  # Use v2 or later for stability
-  with:
-    subject-path: 'PATH/TO/ARTIFACT'  # e.g., './dist/my-binary' or './target/my-app.jar'
+      # Generate attestation for the output file
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'dist/my-app'  # Path to the output file
+          # Optional: subject-digest: 'sha256:<hash>' if you precompute the digest
 
-
-- name: Generate SBOM attestation
-  uses: actions/attest-sbom@v2
-  with:
-    subject-path: 'PATH/TO/ARTIFACT'
-    sbom-path: 'PATH/TO/SBOM'  # e.g., 'sbom.json'
+      # Optional: Upload the artifact for download
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-app
+          path: 'dist/my-app'
