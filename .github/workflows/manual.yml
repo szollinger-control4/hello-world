@@ -29,7 +29,8 @@ jobs:
           mv my-app dist/my-app
         # Ensure the output file is created in a known path (here: dist/my-app)
 
-- name: Create Release
+      # create a release
+      - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
