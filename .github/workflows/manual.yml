@@ -20,6 +20,14 @@ on:
         # The data type of the input
         type: string
 
+
+permissions:
+  id-token: write    # For Sigstore signing via OIDC
+  contents: read     # To access repository contents
+  attestations: write # To upload the attestation to GitHub
+
+
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
@@ -32,3 +40,16 @@ jobs:
     # Runs a single command using the runners shell
     - name: Send greeting
       run: echo "Hello ${{ inputs.name }}"
+
+
+- name: Generate artifact attestation
+  uses: actions/attest-build-provenance@v2  # Use v2 or later for stability
+  with:
+    subject-path: 'PATH/TO/ARTIFACT'  # e.g., './dist/my-binary' or './target/my-app.jar'
+
+
+- name: Generate SBOM attestation
+  uses: actions/attest-sbom@v2
+  with:
+    subject-path: 'PATH/TO/ARTIFACT'
+    sbom-path: 'PATH/TO/SBOM'  # e.g., 'sbom.json'
